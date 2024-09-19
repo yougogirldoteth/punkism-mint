@@ -57,7 +57,6 @@ if (store.forArtist(id.value).length !== collections.length) {
 }
 
 .create-button {
-  display: inline-block;
   margin-top: var(--spacer);
   width: fit-content;
 }
