@@ -8,14 +8,17 @@
       mintRequest,
       minted,
       mintOpen,
-      blocksRemaining,
+      secondsRemaining,
+      countDownStr,
       transactionFlowConfig
     }"
   >
     <article class="token-overview-card">
       <div class="content">
         <div class="image-container">
-          <Image :src="token.artifact" :alt="token.name" />
+          <Embed v-if="token.animationUrl" :src="token.animationUrl" />
+          <Image v-else-if="token.image" :src="token.image" :alt="token.name" />
+          <ImageVoid v-else />
           <header class="overlay" @click="navigateToTokenPage">
             <IconCheck class="icon-check"/>
               <MintTokenButton
@@ -36,8 +39,7 @@
               <h3>
                 <span>{{ token.name }} <span class="token-id">#{{ token.tokenId }}</span></span>
               </h3>
-              <p v-if="mintOpen" class="closes-in">Closes in {{ blocksRemaining }} {{ pluralize('block', Number(blocksRemaining))}}</p>
-              <p v-else class="closed-at">Closed at block {{ token.untilBlock }}</p>
+              <p v-if="mintOpen" class="closes-in">{{ $t('token.closes_in', { time: countDownStr }) }}</p>
             </div>
           </header>
         </div>
@@ -47,6 +49,8 @@
 </template>
 
 <script setup lang="ts">
+import CountDownUntil from '../CountDownUntil.vue';
+
 const { token } = defineProps<{
   token: Token
 }>()

@@ -2,8 +2,16 @@
   <article class="token-detail">
     <div class="artifact">
       <div>
-        <Image :src="token.artifact" :alt="token.name" />
+        <Embed v-if="token.animationUrl" :src="token.animationUrl" />
+        <Image v-else-if="token.image" :src="token.image" :alt="token.name" />
+        <ImageVoid v-else />
       </div>
+
+      <Actions>
+        <Button :to="{ name: 'id-collection-tokenId-full' }" title="Open">
+          <Icon type="maximize" />
+        </Button>
+      </Actions>
     </div>
 
     <MintToken
@@ -16,7 +24,7 @@
         minted,
         mintOpen,
         currentBlock,
-        blocksRemaining,
+        countDownStr,
         transactionFlowConfig
       }"
     >
@@ -46,9 +54,14 @@
         </div>
 
         <div class="mint-status">
-          <p v-if="mintOpen">{{ blocksRemaining }} blocks remaining</p>
-          <p v-else-if="currentBlock">Closed at block {{ token.untilBlock }}</p>
-          <p v-if="ownedBalance">You own {{ ownedBalance }} {{ pluralize('token', Number(ownedBalance)) }}</p>
+          <p v-if="mintOpen">{{ $t('token.closes_in', { time: countDownStr }) }}</p>
+          <p v-else-if="currentBlock">
+            {{ $t('token.closed_ago', { time: countDownStr })}}
+          </p>
+          <p v-if="ownedBalance">
+            {{ $t('token.you_own', { ownedBalance }) }}
+            {{ $t('tokens', Number(ownedBalance)) }}
+          </p>
         </div>
 
         <TokenMintTimeline :token="token" :collection="collection" class="network-mints" />
@@ -122,6 +135,7 @@ const ownedBalance = computed(() => collection.value && store.tokenBalance(colle
     height: var(--height);
     width: var(--width);
     padding: var(--padding-top) var(--padding-x) var(--padding-bottom);
+    position: relative;
 
     @media (--md) {
       border-right: var(--border);
@@ -130,7 +144,7 @@ const ownedBalance = computed(() => collection.value && store.tokenBalance(colle
       align-items: center;
     }
 
-    > * {
+    > *:not(menu) {
       width: var(--dimension);
       height: auto;
       border-bottom: var(--border) !important;
@@ -139,6 +153,14 @@ const ownedBalance = computed(() => collection.value && store.tokenBalance(colle
       @media (--md) {
         border-bottom: none !important;
       }
+    }
+
+    > menu {
+      position: absolute;
+      bottom: var(--spacer);
+      right: var(--spacer);
+      width: fit-content;
+      padding: 0;
     }
   }
 
